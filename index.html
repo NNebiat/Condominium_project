@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+
+   
+
+    h1{color: black; font-size: 40px; margin-left: 250px;  
+
+      }
+
+    p{margin-right: 195px;
+      margin-left: 65px;}
+
+    body {
+    background-color: lightyellow;
+     }
+
+
+    #tooltip{
+        font:0.7em/1em "Helvetica Neue", Helvetica, Arial, sans-serif;
+        opacity: 0;
+        position: fixed;
+        top:0;
+        left:0;
+        -webkit-transform: translate(-50%,0);
+                transform: translate(-50%,0);
+        z-index: 9999;
+        border: 1px yellow;
+        box-shadow: 5px 5px 15px 5px #ccc;
+        padding: 10px;
+        background-color:ivory;
+        pointer-events:none;
+    }
+    /* Build the arrow at bottom of tooltip box */
+    #tooltip:after{
+        top:100%;
+        left:50%;
+        border:solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        border-top-color:black;
+        pointer-events:none;
+        border-width: 10px;
+        margin-left:-10px;
+    }
+    #tooltip:before{
+        top:100%;
+        left:50%;
+        border:solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        z-index: 99999;
+        border-top-color:white;
+        pointer-events:none;
+        border-width: 9px;
+        margin-left:-9px;
+    }
+
+
+    </style>
+</head>
+<body>
+    <h1> <strong>Ethiopian Housing Project</strong> </h1>
+
+    <p>   Housing is one of the biggest problems in Addis Ababa. According to researches made, Addis Ababa needs extra 300,000 houses to solve the current housing problem and to cope-up with the high rate of population growth. Ethiopia is the second most populous country in Africa next to Nigera. Based on the recent United Nations projection the current population of Ethiopia is 104.96 million.  Among the population 4.6 million lives in the capital city, Addis Ababa. </p>
+
+    <p>The Ethiopian Federal Government started addressing the issue of housing and working towards solving the problem in 2005. The government designed a four-year plan project to construct 400 thousand housing units in Addis Ababa. On the first round of registration on 257,219 people registered hoping 400,000 people would be house holder and open 200 thousand job opportunities. </p> 
+
+     <p>Before satisfying the first-round waiting registered house seeker and meeting the goal to building 400 thousand housing units, the second term housing registration started in 2012. During this time 132,151 people who didn’t get their house from previous registration 947,376 people house skiers registered. This chart shows the 11th round, 2017 winners of the housing program and it shows how many women compering to men get housing and preference of house area based on gender. 
+
+
+  </p>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+
+    var margin = {top:50, right:0, bottom:70, left:70},
+        width  = 900 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+
+    var tooltip = d3.select("body")
+        .append("div")
+        .attr("id", "tooltip");
+
+        
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+        
+    var chart = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    var dotColor = d3.scaleOrdinal()
+        .range(["goldenrod", "gold"]) //first color red, second is blue
+        .domain(["female", "male"]);
+
+
+    var howManyAcross = 50; //how many dots across
+
+
+    d3.csv("winners-data.csv", function(error, data){
+        if (error) throw error;
+
+        console.log(data);
+
+        data.sort(function(a,b){
+            if (a.Gender == "Male"){
+                return -1;
+            }
+            if (a.Gender == "Female"){
+                return 1;
+            }
+            return 0;
+        });
+
+
+        chart.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d, i){ return (i % howManyAcross) * 25 }) //25 is the space between dots
+            .attr("cy", function(d, i){ return (Math.floor(i/howManyAcross) * 25)})//30 is space between lines
+            .attr("r", 10)// 5 is the size of the dot
+            .attr("fill", function(d){ return dotColor(d.Gender);})
+            .attr("style", "cursor:pointer;")
+
+            .on("mouseover", function(d, i){
+    
+                var dot = d3.select(this)
+                    .style("opacity", 1);
+
+                var tooltip = d3.select("#tooltip")
+                    .html("<strong>Gender: " + data[i].Gender  + "</strong><br>House Type: " + data[i]["House Type"] + "</p>")//what's in the tooltip box
+                    .style("display","block")
+                    .style("opacity", 1);
+
+               var tooltipHeight = tooltip.node().getBoundingClientRect().height;
+
+ 
+               tooltip
+                   .style("left", (+dot.attr("cx") + (+dot.attr("r")) + margin.left + 2) + "px")
+                   .style("top", (+dot.attr("cy") + margin.top - tooltipHeight - (+dot.attr("r"))) + "px");
+            })
+            .on("mouseout", function(e){
+
+                d3.select(this)
+                    .style("opacity", .5);
+
+                d3.select("#tooltip")
+                    .style("display","none")
+                    .html("");
+            })
+
+
+
+
+
+
+    });
+
+
+    </script>
+</body>
+</html>
